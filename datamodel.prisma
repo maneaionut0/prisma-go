@@ -1,0 +1,6 @@
+type Todo {
+  id  @default(cuid()) @id 
+  title     String
+  completed Boolean @default(value: false)
+  body      String
+}
