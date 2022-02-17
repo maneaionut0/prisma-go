@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -62,6 +63,8 @@ func editTodo(c *gin.Context) {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "datele nu sunt introduse corect"})
 		return
 	}
+
+	fmt.Println(todo)
 
 	id := c.Param("id")
 
@@ -145,6 +148,6 @@ func main() {
 	router.POST("/todo", addTodo)
 	router.DELETE("/todos/:id", deleteTodo)
 
-	router.Run("localhost:8080")
+	router.Run("localhost:5000")
 
 }
