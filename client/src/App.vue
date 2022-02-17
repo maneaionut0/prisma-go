@@ -11,8 +11,11 @@
     ></ag-grid-vue>
     <div class="container">
       <span v-if="selectedTodo">
-        <span>delete selected todo </span>
+        <span>todo selected</span>
         <button @click="removeTodo">Delete</button>
+        <button @click="setTodoDone">
+          {{ todoText }}
+        </button>
       </span>
       <add-todo @create-todo="createTodo" />
     </div>
@@ -24,7 +27,7 @@ import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import { AgGridVue } from "ag-grid-vue3";
 import axios from "axios";
 
-import AddTodo from "../components/AddTodo.vue";
+import AddTodo from "./components/AddTodo.vue";
 
 export default {
   components: {
@@ -45,7 +48,6 @@ export default {
         },
         {
           field: "completed",
-          editable: true,
           flex: 1,
         },
       ],
@@ -55,13 +57,12 @@ export default {
       rowSelection: null,
       rowData: null,
       selectedTodo: null,
-      todoForm: {
-        title: "",
-        body: "",
-        edit: false,
-        completed: false,
-      },
     };
+  },
+  computed: {
+    todoText: function () {
+      return this.selectedTodo.completed ? "not done" : "done";
+    },
   },
   created() {
     this.rowSelection = "single";
@@ -95,7 +96,7 @@ export default {
             : this.filterTodo(colDef.field, oldValue, data.id);
         })
         .catch((error) => {
-          filterTodo(colDef.field, oldValue, data.id);
+          this.filterTodo(colDef.field, oldValue, data.id);
           alert(error);
         });
     },
@@ -122,11 +123,26 @@ export default {
           alert(error);
         });
     },
-    createTodo(e) {
+    createTodo(todo) {
       axios
-        .post(this.endpoint + "/todo", JSON.stringify(e))
+        .post(this.endpoint + "/todo", JSON.stringify(todo))
         .then((res) => {
           this.rowData = [...this.rowData, res.data];
+        })
+        .catch((error) => {
+          alert(error);
+        });
+    },
+    setTodoDone() {
+      axios
+        .patch(this.endpoint + "/setDone/" + this.selectedTodo.id)
+        .then((res) => {
+          this.rowData = this.rowData.map((todo) => {
+            if (todo.id == res.data.id) {
+              return { ...res.data };
+            }
+            return todo;
+          });
         })
         .catch((error) => {
           alert(error);

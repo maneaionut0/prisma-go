@@ -58,6 +58,7 @@ func getTodos(c *gin.Context) {
 
 func editTodo(c *gin.Context) {
 	var todo todo
+	id := c.Param("id")
 
 	if err := c.BindJSON(&todo); err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "datele nu sunt introduse corect"})
@@ -66,16 +67,13 @@ func editTodo(c *gin.Context) {
 
 	fmt.Println(todo)
 
-	id := c.Param("id")
-
 	updatedTodo, err := client.UpdateTodo(prisma.TodoUpdateParams{
 		Where: prisma.TodoWhereUniqueInput{
 			ID: &id,
 		},
 		Data: prisma.TodoUpdateInput{
-			Title:     &todo.Title,
-			Body:      &todo.Body,
-			Completed: &todo.Completed,
+			Title: &todo.Title,
+			Body:  &todo.Body,
 		},
 	}).Exec(ctx)
 
